@@ -1,0 +1,20 @@
+{
+  "streams": [
+    {
+      "title": "my stream",
+      "description": "best stream",
+      "id": 1
+    },
+    {
+      "title": "other stream",
+      "description": "second best stream",
+      "id": 2
+    },
+    {
+      "title": "i created this stream refactored",
+      "description": "my new stream refactored",
+      "userId": "109513352675402172609",
+      "id": 3
+    }
+  ]
+}

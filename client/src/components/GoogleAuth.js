@@ -1,24 +1,32 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { signIn, signOut } from '../actions';
+
+const GOOGLE_AUTH_KEY = process.env.REACT_APP_GOOGLE_AUTH_KEY;
 
 class GoogleAuth extends React.Component {
-  state = { isSignedIn: null };
-
   componentDidMount() {
     window.gapi.load('client:auth2', () => {
       window.gapi.client.init({
-        clientId: '<insert key>',
+        clientId: GOOGLE_AUTH_KEY,
         scope: 'email'
       }).then(() => {
         this.auth = window.gapi.auth2.getAuthInstance();
-        this.setState({ isSignedIn: this.auth.isSignedIn.get() });
+        this.onAuthChange(this.auth.isSignedIn.get());
+        // 'listen' mean onAuthChange is called whenever the user's signed in state
+        // changes according to Google's API
         this.auth.isSignedIn.listen(this.onAuthChange)
       });
     });
   }
 
-  onAuthChange = () => {
-    this.setState({ isSignedIn: this.auth.isSignedIn.get() })
-  }
+  onAuthChange = (isSignedIn) => {
+    if (isSignedIn) {
+      this.props.signIn(this.auth.currentUser.get().getId());
+    } else {
+      this.props.signOut();
+    }
+  };
 
   onSignInClick = () => {
     this.auth.signIn();
@@ -29,9 +37,9 @@ class GoogleAuth extends React.Component {
   }
 
   renderAuthButton() {
-    if (this.state.isSigned === null) {
+    if (this.props.isSignedIn === null) {
       return null;
-    } else if (this.state.isSignedIn) {
+    } else if (this.props.isSignedIn) {
       return (
         <button onClick={this.onSignOutClick} className="ui red google button">
           <i className="google icon" />
@@ -53,4 +61,8 @@ class GoogleAuth extends React.Component {
   }
 }
 
-export default GoogleAuth;
+const mapStateToProps = (state) => {
+  return { isSignedIn: state.auth.isSignedIn };
+}
+
+export default connect(mapStateToProps, { signIn, signOut })(GoogleAuth);
